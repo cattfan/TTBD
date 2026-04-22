@@ -112,7 +112,14 @@ async def run_scraper(file_path, websocket_manager=None):
             else:
                 error_count += 1
             
-            wb.save(file_path)
+            try:
+                wb.save(file_path)
+            except PermissionError:
+                if websocket_manager:
+                    await websocket_manager.broadcast_log("CẢNH BÁO: File Excel đang mở, không thể ghi đè! Vui lòng đóng file.")
+            except Exception as e:
+                if websocket_manager:
+                    await websocket_manager.broadcast_log(f"CẢNH BÁO: Lỗi lưu file ({str(e)})")
             
             if websocket_manager:
                 await websocket_manager.broadcast_data({
